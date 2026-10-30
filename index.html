@@ -118,7 +118,7 @@ const pinOK=async s=>{const p=getP();return p?p===await H(s):s==='1234'};
 let fails=0,until=0;
 $('#go').onclick=async()=>{if(Date.now()<until)return $('#ge').textContent='Terlalu banyak percobaan. Coba lagi sebentar.';
  if(await pinOK($('#pin').value)){ok=true;fails=0;$('#pin').value='';$('#ge').textContent='';route()}else{fails++;$('#pin').value='';$('#ge').textContent='PIN salah.';if(fails>=5){until=Date.now()+3e4;fails=0}}};
-$('#pin').onkeydown=e=>e.key==='Enter'&&$('#go').click();
+$('#pin').onkeydown=e=>{if(e.key==='Enter')$('#go').click()};
 $('#lock').onclick=()=>{ok=false;location.hash='#dashboard'};
 $('#pf').onsubmit=async e=>{e.preventDefault();if(!await pinOK($('#p0').value))return $('#pm2').textContent='PIN lama salah.';const h=await H($('#p1').value);try{localStorage.setItem(KP,h)}catch(x){}$('#pm2').textContent='PIN diperbarui.';e.target.reset()};
 /* data page */
