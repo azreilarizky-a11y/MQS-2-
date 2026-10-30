@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>MQS C of A Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#e9eff5;--pn:#fff;--p2:#f1f5f9;--tx:#0e1b2c;--mu:#5d6f83;--ln:#d8e1ea;--ov:#e5484d;--cr:#f08a24;--up:#e5b000;--va:#1fa971;--nd:#8b99a8;--ac:#1d5fd1;--top:#0f2744;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#08121f;--pn:#0f2033;--p2:#162c44;--tx:#e8f0f8;--mu:#8fa6bd;--ln:#1f3a55;--ac:#6aa5ff;--top:#0b1a2c;--ov:#ff6b70;--va:#2ad59b}}
+:root[data-theme=dark]{--bg:#08121f;--pn:#0f2033;--p2:#162c44;--tx:#e8f0f8;--mu:#8fa6bd;--ln:#1f3a55;--ac:#6aa5ff;--top:#0b1a2c;--ov:#ff6b70;--va:#2ad59b}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--tx);font:14px/1.5 "DM Sans",system-ui,sans-serif}
+h1,h2,h3,.big{font-family:"Bricolage Grotesque","DM Sans",system-ui,sans-serif;margin:0}[hidden]{display:none!important}
+.w{max-width:1120px;margin:0 auto;padding:0 18px}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer;border:1px solid var(--ln);background:var(--pn);border-radius:10px;padding:7px 14px}
+button:hover{border-color:var(--ac)}:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+input,select{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:8px 10px;width:100%;color-scheme:light dark}
+nav{background:var(--top);color:#fff}nav .w{display:flex;align-items:center;gap:6px;height:56px}
+nav b{font:700 17px "Bricolage Grotesque",sans-serif;margin-right:auto;letter-spacing:-.01em}
+nav a{color:#c5d6ea;text-decoration:none;padding:7px 14px;border-radius:99px}nav a.on{background:#fff;color:#0f2744;font-weight:700}
+nav button{background:transparent;color:#fff;border-color:#ffffff40;padding:6px 10px}
+.hero{background:var(--top);color:#fff;padding:28px 0 70px}.hero h1{font-size:clamp(26px,5vw,44px);line-height:1.1;letter-spacing:-.025em;max-width:16em}
+.hero p{color:#b9cde3;margin:10px 0 0}.hero em{font-style:normal;color:#ff8a8f}
+.sb{display:flex;gap:4px;margin-top:24px;height:46px}.sb button{border:0;border-radius:8px;padding:0;color:#fff;font-weight:700;min-width:34px;background:var(--c);flex:var(--n) 1 0}
+.sb button.off{opacity:.3}.lg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:#b9cde3}.lg i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+main{margin-top:-44px;padding-bottom:50px;display:grid;gap:16px}
+.cd{background:var(--pn);border:1px solid var(--ln);border-radius:18px;padding:18px 20px}.cd h2{font-size:18px}.sub{color:var(--mu);font-size:12.5px;margin:2px 0 12px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tools input[type=search]{max-width:230px;border-radius:99px}.tools select{width:auto;border-radius:99px}
+.seg{display:inline-flex;background:var(--p2);border-radius:99px;padding:3px}.seg button{border:0;background:none;border-radius:99px;padding:4px 14px}.seg button[aria-pressed=true]{background:var(--ac);color:#fff}
+.fleet{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:7px;margin-top:14px}
+.tile{border:0;border-radius:10px;padding:8px 2px 6px;background:var(--c);color:#fff;font:700 13px "Bricolage Grotesque",sans-serif;position:relative}
+.tile small{display:block;font:500 9.5px "DM Sans",sans-serif;opacity:.9}.tile.cl:after{content:"✓";position:absolute;right:5px;top:2px;font-size:10px}.tile.dim{opacity:.14}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.ch{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+@media(max-width:800px){.two{grid-template-columns:1fr}}
+.it{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;padding:9px 12px;margin-top:6px;border-radius:12px;background:var(--p2);border-left:5px solid var(--c);cursor:pointer;width:100%;text-align:left}
+.it b{font-family:"Bricolage Grotesque",sans-serif}.it span{color:var(--mu);font-size:12px}
+.bd{padding:2px 10px;border-radius:99px;background:var(--c);color:#fff;font-size:11.5px;font-weight:700;white-space:nowrap}
+dialog{border:0;border-radius:20px;padding:22px;width:min(380px,92vw);background:var(--pn);color:var(--tx)}dialog::backdrop{background:#0008}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0}dt{color:var(--mu)}dd{margin:0;font-weight:500}
+.gate{max-width:360px;margin:30px auto;text-align:center}.gate input{text-align:center;font-size:24px;letter-spacing:.4em;margin:14px 0}
+.err{color:var(--ov);min-height:20px;font-size:13px}.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+.add{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;align-items:end}
+.add label,.pinf label{font-size:12px;color:var(--mu);display:grid;gap:3px}.pinf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end}
+.tw{overflow:auto;max-height:520px;border:1px solid var(--ln);border-radius:12px;margin-top:10px}table{border-collapse:collapse;width:100%;min-width:860px}
+th{position:sticky;top:0;background:var(--p2);text-align:left;padding:8px;font-size:12px;color:var(--mu)}td{padding:4px 5px;border-top:1px solid var(--ln)}td input,td select{padding:5px 7px;border-radius:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}#msg{color:var(--mu);font-size:13px}
+@media print{nav,.sb,.tools,.hero button{display:none}.cd{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<nav><div class="w"><b>MQS · C of A Monitor</b><a href="#dashboard" id="n1">Dashboard</a><a href="#data" id="n2">Kelola data 🔒</a><button id="th" title="Ganti tema">◐</button></div></nav>
+
+<section id="pgD"><header class="hero"><div class="w"><h1 id="hl"></h1><p id="hs"></p>
+<div class="sb" id="sb"></div><div class="lg" id="lg"></div></div></header>
+<main class="w">
+<section class="cd"><div class="tools"><div class="seg" id="seg"></div><select id="ft"></select><input type="search" id="q" placeholder="Cari registrasi…"><button id="clr">Reset</button><span style="flex:1"></span><label class="sub" style="margin:0">Acuan <input type="date" id="asof" style="width:auto;display:inline-block;padding:4px 8px"></label><button onclick="print()">Cetak</button></div>
+<div class="fleet" id="fleet"></div><p class="sub" style="margin:12px 0 0">Satu kotak = satu pesawat, warna = status timeline, tanda ✓ = Closed. Klik untuk detail.</p></section>
+<div class="two"><section class="cd"><h2>Prioritas tindak lanjut</h2><p class="sub">Item Open paling mendesak.</p><div id="prio"></div></section>
+<section class="cd"><h2>Habis pada periode</h2><div class="tools" style="margin:6px 0 4px"><select id="py"></select><select id="pm"></select></div><p class="sub" id="pc"></p><div id="plist"></div></section></div>
+<div class="ch"><section class="cd"><h2>Status per tipe</h2><p class="sub">Sebaran timeline tiap tipe pesawat.</p><canvas id="c1"></canvas></section>
+<section class="cd"><h2>Jatuh tempo 12 bulan ke depan</h2><p class="sub">Beban renewal per bulan.</p><canvas id="c2"></canvas></section></div>
+</main></section>
+
+<section id="pgM" hidden><div class="w" style="padding-top:22px;padding-bottom:50px;display:grid;gap:16px">
+<div class="cd gate" id="gate"><h2>Masukkan PIN akses</h2><p class="sub">Halaman ini untuk menambah dan mengubah data.</p><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN"><div class="err" id="ge"></div><button class="pri" id="go">Buka</button></div>
+<div id="adm" hidden style="display:grid;gap:16px">
+<section class="cd"><div class="row" style="margin:0"><h2 style="margin-right:auto">Tambah pesawat</h2><a href="#dashboard"><button>← Dashboard</button></a><button id="lock">Kunci</button></div>
+<form class="add" id="add" style="margin-top:12px"><label>Tipe<input id="nt" list="tp" placeholder="A320" required></label><datalist id="tp"></datalist><label>Registrasi<input id="nr" placeholder="PK-XXX" required></label><label>Exp. C of A<input id="nd" type="date"></label><button class="pri">Tambah</button></form><div id="msg"></div></section>
+<section class="cd"><h2>Ubah data</h2><p class="sub">Perubahan tersimpan otomatis.</p><input type="search" id="mq" placeholder="Cari registrasi atau tipe…" style="max-width:260px;border-radius:99px"><div class="tw"><table id="tbl"></table></div>
+<div class="row"><button id="csv">Unduh CSV</button><button id="reset">Kembalikan data awal</button></div></section>
+<section class="cd"><h2>Ubah PIN</h2><p class="sub">PIN 4 sampai 6 angka.</p><form class="pinf" id="pf"><label>PIN lama<input id="p0" type="password" inputmode="numeric" maxlength="6" required></label><label>PIN baru<input id="p1" type="password" inputmode="numeric" maxlength="6" pattern="\d{4,6}" required></label><button>Simpan PIN</button></form><div id="pm2" class="sub"></div></section>
+</div></div></section>
+<dialog id="dg"></dialog>
+<script>
+const DATA=[["A320","PK-GLE","2026-05-20","Open","MQS-2",""],["A320","PK-GLG","2026-09-01","Open","MQS-2",""],["A320","PK-GLI","2026-07-28","Open","MQS-2",""],["A320","PK-GLK","2026-12-22","Open","MQS-2",""],["A320","PK-GLL","2026-12-21","Open","MQS-2",""],["A320","PK-GLM","2026-01-03","Open","MQS-2",""],["A320","PK-GLN","2026-12-13","Open","MQS-2",""],["A320","PK-GLO","2026-12-25","Open","MQS-2",""],["A320","PK-GLP","2026-03-04","Open","MQS-2",""],["A320","PK-GLQ","2024-03-20","Open","MQS-2",""],["A320","PK-GLR","2026-04-02","Open","MQS-2",""],["A320","PK-GLS","2026-03-31","Open","MQS-2",""],["A320","PK-GLT","2026-05-01","Open","MQS-2",""],["A320","PK-GLU","2026-05-14","Open","MQS-2",""],["A320","PK-GLV","2026-04-25","Open","MQS-2",""],["A320","PK-GLW","2025-08-18","Open","MQS-2",""],["A320","PK-GLX","2026-09-24","Open","MQS-2",""],["A320","PK-GLY","2026-11-11","Open","MQS-2",""],["A320","PK-GLZ","2025-06-16","Open","MQS-2",""],["A320","PK-GQA","2026-07-25","Open","MQS-2",""],["A320","PK-GQC","2026-10-08","Open","MQS-2",""],["A320","PK-GQD","2024-08-27","Open","MQS-2",""],["A320","PK-GQE","2026-09-17","Open","MQS-2",""],["A320","PK-GQF","2026-11-06","Open","MQS-2",""],["A320","PK-GQG","2026-03-15","Open","MQS-2",""],["A320","PK-GQH","2026-12-22","Open","MQS-2",""],["A320","PK-GQI","2026-04-17","Open","MQS-2",""],["A320","PK-GQJ","2026-03-24","Open","MQS-2",""],["A320","PK-GQK","2026-06-30","Open","MQS-2",""],["A320","PK-GQL","2026-12-28","Open","MQS-2",""],["A320","PK-GQM","2026-04-19","Open","MQS-2",""],["A320","PK-GQN","2026-05-24","Open","MQS-2",""],["A320","PK-GQO","2026-06-30","Open","MQS-2",""],["A320","PK-GQP","2026-09-25","Open","MQS-2",""],["A320","PK-GQQ","2026-10-02","Open","MQS-2",""],["A320","PK-GQR","2026-11-05","Open","MQS-2",""],["A320","PK-GQS","2026-12-26","Open","MQS-2",""],["A320","PK-GQT","2026-01-02","Open","MQS-2",""],["A320","PK-GQU","2026-09-26","Open","MQS-2",""],["A320","PK-GTA","2026-12-12","Open","MQS-2",""],["A320","PK-GTC","2022-03-12","Open","MQS-2",""],["A320","PK-GTD","2026-05-29","Open","MQS-2",""],["A320","PK-GTE","2026-05-29","Open","MQS-2",""],["A320","PK-GTF","2026-11-17","Open","MQS-2",""],["A320","PK-GTG","2026-07-21","Open","MQS-2",""],["A320","PK-GTH","2025-10-02","Open","MQS-2",""],["A320","PK-GTI","2025-07-29","Open","MQS-2",""],["A320","PK-GTJ","2023-12-12","Open","MQS-2",""],["A320","PK-GTK","2025-10-28","Open","MQS-2",""],["ATR72-212A","PK-GJP","2025-04-17","Open","MQS-2",""],["ATR72-212A","PK-GJQ","2025-09-08","Open","MQS-2",""],["ATR72-212A","PK-GJR","2022-01-28","Open","MQS-2",""],["ATR72-212A","PK-GJS","2025-01-28","Open","MQS-2",""],["ATR72-212A","PK-GJT","2026-12-20","Open","MQS-2",""],["ATR72-212A","PK-GJU","2024-01-01","Open","MQS-2",""],["ATR72-212A","PK-GJV","2026-10-11","Open","MQS-2",""],["B737-3/5","PK-GGC","2026-07-08","Open","MQS-2",""],["A330-900","PK-GYA",null,"Open","MQS-2","C of A belum tersedia - mohon lengkapi Exp. C of A"],["A330-900","PK-GYC",null,"Open","MQS-2","C of A belum tersedia - mohon lengkapi Exp. C of A"],["ATR72-212A","PK-GJA",null,"Open","MQS-2","C of A belum tersedia - mohon lengkapi Exp. C of A"]];
+const $=s=>document.querySelector(s),KEY='mqs_cofa_v2',KP='mqs_pin_v2',DAY=864e5,MN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const iso=d=>d.toISOString().slice(0,10),ms=s=>Date.parse(s+'T00:00:00Z');
+const TL={Overdue:'--ov',Critical:'--cr',Upcoming:'--up',Valid:'--va','No Data':'--nd'};
+let rows,F={type:'',st:'',tl:'',q:''},sel,crit=30,upc=90,asof=iso(new Date()),PY='',PM='',ok=false,ch={};
+const due=x=>x.nd||x.d,days=x=>due(x)?Math.round((ms(due(x))-ms(asof))/DAY):null;
+const tl=x=>{const a=days(x);return a===null?'No Data':a<0?'Overdue':a<=crit?'Critical':a<=upc?'Upcoming':'Valid'};
+const seed=()=>rows=DATA.map(([t,r,d,st,pic,rm])=>({t,r,d,nd:null,pic,st,rm}));
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.rows){rows=s.rows;return}}catch(e){}seed()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({rows}))}catch(e){}};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim(),cnt=(a,f)=>a.filter(f).length,srt=(a,b)=>(days(a)??9e9)-(days(b)??9e9);
+const when=a=>a===null?'tanpa tanggal':a<0?'lewat '+-a+' hari':a===0?'habis hari ini':a+' hari lagi';
+const flt=()=>rows.filter(x=>(!F.type||x.t===F.type)&&(!F.st||x.st===F.st)&&(!F.tl||tl(x)===F.tl)&&(!F.q||(x.r+x.t).toLowerCase().includes(F.q)));
+function mk(id,cfg){const o=Chart.defaults;o.font.family='"DM Sans",sans-serif';o.color=css('--mu');o.borderColor=css('--ln');if(ch[id])ch[id].destroy();ch[id]=new Chart($('#'+id),cfg)}
+const ax=(st)=>({x:{stacked:st,ticks:{color:css('--mu')},grid:{display:false}},y:{stacked:st,beginAtZero:true,ticks:{color:css('--mu'),precision:0},grid:{color:css('--ln')}}});
+const item=x=>{const t=tl(x);return `<button class="it" style="--c:var(${TL[t]})" data-r="${x.r}"><b>${x.r}</b><span>${x.t} · ${when(days(x))}</span><i class="bd" style="--c:var(${TL[t]});font-style:normal">${t}</i></button>`};
+function draw(){
+ const A=flt(),N=A.length,types=[...new Set(rows.map(x=>x.t))],C={};Object.keys(TL).forEach(k=>C[k]=cnt(A,x=>tl(x)===k));
+ const old=[...A].filter(x=>tl(x)==='Overdue').sort(srt)[0],nxt=A.filter(x=>x.st==='Open'&&days(x)>=0&&days(x)!==null).sort(srt)[0];
+ $('#hl').innerHTML=N?`${C.Overdue} dari ${N} pesawat sudah <em>overdue</em>`:'Tidak ada pesawat pada filter ini';
+ $('#hs').textContent=(C['No Data']?C['No Data']+' pesawat belum punya tanggal C of A. ':'')+(nxt?`Berikutnya habis: ${nxt.r}, ${when(days(nxt))}.`:'')+(old?` Terlama: ${old.r}, ${when(days(old))}.`:'');
+ $('#sb').innerHTML=Object.keys(TL).map(k=>`<button style="--c:var(${TL[k]});--n:${C[k]}" class="${F.tl&&F.tl!==k?'off':''}" data-t="${k}" title="${k}: ${C[k]}" ${C[k]?'':'hidden'}>${C[k]}</button>`).join('');
+ $('#lg').innerHTML=Object.keys(TL).map(k=>`<span style="--c:var(${TL[k]})"><i></i>${k} ${C[k]}</span>`).join('');
+ document.querySelectorAll('#sb button').forEach(b=>b.onclick=()=>{F.tl=F.tl===b.dataset.t?'':b.dataset.t;draw()});
+ $('#seg').innerHTML=['','Open','Closed'].map(v=>`<button aria-pressed="${F.st===v}" data-s="${v}">${v||'Semua'}</button>`).join('');
+ document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{F.st=b.dataset.s;draw()});
+ $('#ft').innerHTML='<option value="">Semua tipe</option>'+types.map(t=>`<option ${F.type===t?'selected':''}>${t}</option>`).join('');
+ const ids=new Set(A);$('#fleet').innerHTML=[...rows].sort(srt).map(x=>`<button class="tile ${x.st==='Closed'?'cl':''} ${ids.has(x)?'':'dim'}" style="--c:var(${TL[tl(x)]})" data-r="${x.r}" title="${x.r} · ${tl(x)}">${x.r.replace('PK-','')}<small>${x.t.slice(0,7)}</small></button>`).join('');
+ const pr=rows.filter(x=>x.st==='Open').sort(srt).slice(0,6);$('#prio').innerHTML=pr.map(item).join('')||'<p class="sub">Tidak ada item Open.</p>';
+ const ys=[...new Set(rows.map(x=>due(x)&&due(x).slice(0,4)).filter(Boolean))].sort();
+ $('#py').innerHTML='<option value="">Semua tahun</option>'+ys.map(y=>`<option ${PY==y?'selected':''}>${y}</option>`).join('');
+ $('#pm').innerHTML='<option value="">Semua bulan</option>'+MN.map((m,i)=>`<option value="${i+1}" ${PM==i+1?'selected':''}>${m}</option>`).join('');
+ const PL=A.filter(x=>due(x)&&(!PY||due(x).slice(0,4)===PY)&&(!PM||+due(x).slice(5,7)===+PM)).sort(srt);
+ $('#pc').textContent=PL.length+' pesawat';$('#plist').innerHTML=PL.slice(0,8).map(item).join('')+(PL.length>8?`<p class="sub">+${PL.length-8} lainnya, persempit lewat filter.</p>`:'')||'<p class="sub">Tidak ada.</p>';
+ document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>detail(b.dataset.r));
+ const ks=Object.keys(TL);
+ mk('c1',{type:'bar',data:{labels:types,datasets:ks.map(k=>({label:k,data:types.map(t=>cnt(A,x=>x.t===t&&tl(x)===k)),backgroundColor:css(TL[k]),borderRadius:3}))},options:{plugins:{legend:{position:'bottom'}},scales:ax(true)}});
+ const d0=new Date(asof+'T00:00:00Z'),M=[];for(let i=0;i<12;i++){const s=i?Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth()+i,1):d0.getTime(),e=Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth()+i+1,1),l=new Date(s);M.push([MN[l.getUTCMonth()]+' '+String(l.getUTCFullYear()).slice(2),cnt(A,x=>due(x)&&ms(due(x))>=s&&ms(due(x))<e)])}
+ mk('c2',{type:'bar',data:{labels:M.map(m=>m[0]),datasets:[{data:M.map(m=>m[1]),backgroundColor:css('--ac'),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:ax(false)}});
+}
+function detail(r){const x=rows.find(y=>y.r===r),t=tl(x);$('#dg').innerHTML=`<h2>${x.r}</h2><span class="bd" style="--c:var(${TL[t]})">${t}</span><dl><dt>Tipe</dt><dd>${x.t}</dd><dt>Exp. C of A</dt><dd>${due(x)||'-'}</dd><dt>Sisa</dt><dd>${when(days(x))}</dd><dt>Status</dt><dd>${x.st}</dd><dt>PIC</dt><dd>${x.pic||'-'}</dd><dt>Remarks</dt><dd>${x.rm||'-'}</dd></dl><div class="row"><a href="#data"><button class="pri" onclick="dg.close()">Ubah data</button></a><button onclick="dg.close()">Tutup</button></div>`;$('#dg').showModal()}
+$('#q').oninput=e=>{F.q=e.target.value.toLowerCase();draw()};$('#ft').onchange=e=>{F.type=e.target.value;draw()};$('#clr').onclick=()=>{F={type:'',st:'',tl:'',q:''};$('#q').value='';draw()};
+$('#py').onchange=e=>{PY=e.target.value;draw()};$('#pm').onchange=e=>{PM=e.target.value;draw()};$('#asof').value=asof;$('#asof').onchange=e=>{asof=e.target.value||iso(new Date());draw()};
+$('#th').onclick=()=>{const r=document.documentElement,d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark';draw()};
+/* PIN */
+const H=async s=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('mqs'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return'p'+s}};
+const getP=()=>{try{return localStorage.getItem(KP)}catch(e){return null}};
+const pinOK=async s=>{const p=getP();return p?p===await H(s):s==='1234'};
+let fails=0,until=0;
+$('#go').onclick=async()=>{if(Date.now()<until)return $('#ge').textContent='Terlalu banyak percobaan. Coba lagi sebentar.';
+ if(await pinOK($('#pin').value)){ok=true;fails=0;$('#pin').value='';$('#ge').textContent='';route()}else{fails++;$('#pin').value='';$('#ge').textContent='PIN salah.';if(fails>=5){until=Date.now()+3e4;fails=0}}};
+$('#pin').onkeydown=e=>e.key==='Enter'&&$('#go').click();
+$('#lock').onclick=()=>{ok=false;location.hash='#dashboard'};
+$('#pf').onsubmit=async e=>{e.preventDefault();if(!await pinOK($('#p0').value))return $('#pm2').textContent='PIN lama salah.';const h=await H($('#p1').value);try{localStorage.setItem(KP,h)}catch(x){}$('#pm2').textContent='PIN diperbarui.';e.target.reset()};
+/* data page */
+const msg=t=>$('#msg').textContent=t;
+function tbl(){const q=$('#mq').value.toLowerCase(),L=rows.filter(x=>(x.r+x.t).toLowerCase().includes(q));
+ $('#tbl').innerHTML='<thead><tr><th>Registrasi</th><th>Tipe</th><th>Exp. C of A</th><th>Renewal</th><th>Status</th><th>PIC</th><th>Remarks</th><th></th></tr></thead><tbody>'+L.map(x=>`<tr data-r="${x.r}"><td><b>${x.r}</b></td><td>${x.t}</td><td><input type="date" data-k="d" value="${x.d||''}"></td><td><input type="date" data-k="nd" value="${x.nd||''}"></td><td><select data-k="st"><option ${x.st==='Open'?'selected':''}>Open</option><option ${x.st==='Closed'?'selected':''}>Closed</option></select></td><td><input data-k="pic" value="${x.pic||''}"></td><td><input data-k="rm" value="${(x.rm||'').replace(/"/g,'&quot;')}"></td><td><button data-x="${x.r}">Hapus</button></td></tr>`).join('')+'</tbody>';
+ document.querySelectorAll('#tbl [data-k]').forEach(i=>i.onchange=()=>{const x=rows.find(y=>y.r===i.closest('tr').dataset.r);x[i.dataset.k]=i.value||(['d','nd'].includes(i.dataset.k)?null:'');save()});
+ document.querySelectorAll('#tbl [data-x]').forEach(b=>b.onclick=()=>{if(confirm('Hapus '+b.dataset.x+'?')){rows=rows.filter(y=>y.r!==b.dataset.x);save();tbl()}})}
+$('#mq').oninput=tbl;
+$('#add').onsubmit=e=>{e.preventDefault();const t=$('#nt').value.trim().toUpperCase(),r=$('#nr').value.trim().toUpperCase().replace(/\s+/g,''),d=$('#nd').value||null;
+ if(rows.some(x=>x.r===r))return msg('Registrasi '+r+' sudah ada.');const n={t,r,d,nd:null,pic:'MQS-2',st:null,rm:''};n.st=tl(n)==='Valid'?'Closed':'Open';rows.push(n);save();e.target.reset();msg(r+' ditambahkan.');tbl()};
+$('#reset').onclick=()=>{if(confirm('Kembalikan semua data ke kondisi awal? Perubahan Anda akan hilang.')){seed();save();tbl();msg('Data dikembalikan.')}};
+$('#csv').onclick=()=>{const L=['Registration,Type,Exp C of A,Renewal,Days Left,Timeline,Status,PIC,Remarks',...rows.map(x=>[x.r,x.t,x.d||'',x.nd||'',days(x)??'',tl(x),x.st,x.pic||'','"'+(x.rm||'').replace(/"/g,'""')+'"'].join(','))];
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([L.join('\n')],{type:'text/csv'}));a.download='MQS_CofA.csv';a.click()};
+function route(){const m=location.hash==='#data';$('#pgD').hidden=m;$('#pgM').hidden=!m;$('#n1').className=m?'':'on';$('#n2').className=m?'on':'';
+ $('#gate').hidden=ok;$('#adm').hidden=!ok;if(m&&ok){$('#tp').innerHTML=[...new Set(rows.map(x=>x.t))].map(t=>`<option value="${t}">`).join('');tbl()}if(m&&!ok)setTimeout(()=>$('#pin').focus(),50);if(!m){ok=ok&&false;draw()}scrollTo(0,0)}
+addEventListener('hashchange',route);load();route();
+</script></body></html>
